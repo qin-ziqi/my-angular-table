@@ -1,0 +1,117 @@
+<nz-card nzTitle="报价单">
+  <div class="setting">
+    <div class="view">
+      操作： <button *ngIf="!isView" nz-button nzType="default" (click)="toView()">预览</button>
+      <button *ngIf="isView" nz-button nzType="default" (click)="toView()">编辑</button>
+    </div>
+    <div class="price">
+      单价：<nz-input-number [(ngModel)]="unitPrice" [nzMin]="0" (keyup)="onKeyUp($event)" [nzStep]="1" [nzPrecision]="1"
+        (ngModelChange)="logger()"></nz-input-number>
+      元
+    </div>
+  </div>
+  <nz-table nzBordered [nzShowPagination]="false" [nzData]="list">
+    <thead>
+      <tr>
+        <th>序号</th>
+        <th>阶段</th>
+        <th>类别</th>
+        <th>模块</th>
+        <th>描述</th>
+        <th>工时</th>
+        <th>价格（元）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let item of list;let i = index;">
+        <tr *ngIf="!(isView && item.stageValue === 0)">
+          <td *ngIf="isStageShow(i)" [attr.rowspan]="item.stageValue !== 0 ? getStageRowSpan(i) : 1">
+            <span *ngIf="i < list.length - 1;">{{getSortIndex(i)}}</span>
+          </td>
+
+          <td *ngIf="isStageShow(i)" [attr.colspan]="item.stageValue === 0 ? 6 : 1" [attr.rowspan]="item.stageValue !== 0 ? getStageRowSpan(i) : 1">
+            <ng-container *ngIf="!isView">
+              <ng-container *ngIf="item.stageValue > 0">
+                <input nz-input placeholder="阶段" [(ngModel)]="item.stageName" (ngModelChange)="logger()"> <br>
+                <button nz-button (click)="deleteStage(i)">删除</button>
+              </ng-container>
+              <ng-container *ngIf="item.stageValue === 0">
+                <button nz-button nzType="default" (click)="addStage(i)">添加阶段</button>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="isView">
+              <p>{{item?.stageName}}</p>
+            </ng-container>
+          </td>
+
+          <ng-container *ngIf="!(isView && item.classValue === 0) && item.stageValue !== 0">
+            <td *ngIf="isClassShow(i)" [attr.colspan]="item.classValue === 0 ? 5 : 1" [attr.rowspan]="item.classValue !== 0 ? getClassRowSpan(i) : 1">
+              <ng-container *ngIf="!isView">
+                <ng-container *ngIf="item.classValue > 0">
+                  <input nz-input placeholder="类别" [(ngModel)]="item.className" (ngModelChange)="logger()"> <br>
+                  <button nz-button (click)="deleteClass(i)">删除</button>
+                </ng-container>
+                <ng-container *ngIf="item.classValue === 0">
+                  <button nz-button nzType="default" (click)="addClass(i)">添加类别</button>
+                </ng-container>
+              </ng-container>
+
+              <ng-container *ngIf="isView">
+                <p>{{item?.className}}</p>
+              </ng-container>
+            </td>
+
+            <ng-container *ngIf="!(isView && item.modelValue === 0) && item.classValue !== 0">
+              <td *ngIf="isModelShow(i)" [attr.colspan]="item.modelValue === 0 ? 4 : 1">
+                <ng-container *ngIf="!isView">
+                  <ng-container *ngIf="item.modelValue > 0">
+                    <input nz-input placeholder="模块" [(ngModel)]="item.modelName" (ngModelChange)="logger()"> <br>
+                    <button nz-button (click)="deleteModel(i)">删除</button>
+                  </ng-container>
+                  <ng-container *ngIf="item.modelValue === 0">
+                    <button nz-button nzType="default" (click)="addModel(i)">添加模块</button>
+                  </ng-container>
+                </ng-container>
+
+                <ng-container *ngIf="isView">
+                  <p>{{item?.modelName}}</p>
+                </ng-container>
+              </td>
+
+              <ng-container *ngIf="item.modelValue !== 0">
+                <td>
+                  <ng-container *ngIf="!isView">
+                    <textarea rows="4" nz-input placeholder="描述" [(ngModel)]="item.description" (ngModelChange)="logger()"></textarea>
+                  </ng-container>
+                  <ng-container *ngIf="isView">
+                    <p>{{item?.description}}</p>
+                  </ng-container>
+                </td>
+                <td>
+                  <ng-container *ngIf="!isView">
+                    <nz-input-number [(ngModel)]="item.hours" (ngModelChange)="logger()" (keyup)="onKeyUp($event, i)"
+                      [nzMin]="0" [nzStep]="1" [nzPrecision]="1"></nz-input-number>
+                  </ng-container>
+                  <ng-container *ngIf="isView">
+                    <p>{{item?.hours}}</p>
+                  </ng-container>
+                </td>
+                <td>
+                  <ng-container *ngIf="!isView">
+                    <input disabled="true" nz-input [(ngModel)]="item.price" (ngModelChange)="logger()">
+                  </ng-container>
+                  <ng-container *ngIf="isView">
+                    <p>{{item?.price}}</p>
+                  </ng-container>
+                </td>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </ng-container>
+    </tbody>
+  </nz-table>
+  <div>
+    <p style="text-align: right;margin-top: 15px;">总价：{{allPrice}} 元</p>
+  </div>
+</nz-card>
